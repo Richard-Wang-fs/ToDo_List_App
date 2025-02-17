@@ -23,6 +23,12 @@ function App() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
+  // Store deleted task
+  const [deletedTask, setDeletedTask] = useState(null);
+
+  // Delete undo timer
+  const [undoTimeoutId, setUndoTimeoutId] = useState(null);
+
   // Add task
   const handleAddTask = () => {
     if (!inputValue.trim()) return;
@@ -48,8 +54,35 @@ function App() {
 
   // Delete task
   const handleDeleteTask = (taskId) => {
-    const newTasks = tasks.filter(task => task.id !== taskId);
-    setTasks(newTasks);
+    const taskToDelete = tasks.find(t => t.id === taskId);
+    if (!taskToDelete) return;
+
+    setTasks(prevTasks => prevTasks.filter(t => t.id !== taskId));
+
+    setDeletedTask(taskToDelete);
+
+    if (undoTimeoutId) {
+      clearTimeout(undoTimeoutId);
+    }
+
+    const newTimeoutId = setTimeout(() => {
+      setDeletedTask(null);
+      setUndoTimeoutId(null);
+    }, 3000);
+
+    setUndoTimeoutId(newTimeoutId);
+  };
+
+  // Undo delete
+  const handleUndoDelete = () => {
+    if (undoTimeoutId) {
+      clearTimeout(undoTimeoutId);
+      setUndoTimeoutId(null);
+    }
+    if (deletedTask) {
+      setTasks(prevTasks => [...prevTasks, deletedTask]);
+      setDeletedTask(null);
+    }
   };
 
   // Edit task
@@ -159,6 +192,13 @@ function App() {
           </div>
         ))}
       </div>
+      {deletedTask && (
+        <div className="undo-container">
+          <span>Delete “{deletedTask.text}”</span>
+          <button onClick={handleUndoDelete}>Undo</button>
+        </div>
+      )}
+
     </div>
   );
 }
