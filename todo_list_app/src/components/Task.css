@@ -29,4 +29,9 @@
     background-color: #ff7875;
     color: #fff;
   }
-  
+
+  .error {
+    color: red;
+    margin-top: 4px;
+    font-size: 0.9rem;
+  }

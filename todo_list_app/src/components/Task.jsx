@@ -8,27 +8,39 @@ function Task({ task, onToggleComplete, onDelete, onUpdateTask }) {
   const [isEditing, setIsEditing] = useState(false);
   // Store edited text
   const [editText, setEditText] = useState(text);
+  // Error message
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Edit
   const handleEdit = () => {
     setIsEditing(true);
     setEditText(text);
+    setErrorMessage('');
   };
 
   // Store
   const handleSave = () => {
-    onUpdateTask(id, editText);
+    if (!editText.trim()) {
+      setErrorMessage('Task is empty!');
+      return;
+    }
+    
+    onUpdateTask(id, editText.trim());
     setIsEditing(false);
+    setErrorMessage('');
   };
 
   return (
     <div className={`task-item ${isCompleted ? 'completed' : ''}`}>
       {isEditing ? (
-        <input 
-          type="text"
-          value={editText}
-          onChange={(e) => setEditText(e.target.value)}
-        />
+         <div className="input-wrapper">
+         <input
+           type="text"
+           value={editText}
+           onChange={(e) => setEditText(e.target.value)}
+         />
+         {errorMessage && <p className="error">{errorMessage}</p>}
+       </div>
       ) : (
         <span>{text}</span>
       )}
